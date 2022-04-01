@@ -28,17 +28,17 @@ class LambdaReduce(LambdaBase):
 
 def load_estimation_model(inputfilename, outputfilename):
 	with open(inputfilename, "r") as rf:
-        	contents = rf.read()
-        	contents = contents.split(",")
+		contents = rf.read()
+		contents = contents.split(",")
 
 	data = torch.Tensor(1,350)
 	name = ""
 	for i in range(len(contents)):
-        	if i == 0:
-                	name = contents[i].strip()
-        	else:
-                	val = float(contents[i].strip())
-                	data[0][i-1] = val
+		if i == 0:
+			name = contents[i].strip()
+		else:
+			val = float(contents[i].strip())
+			data[0][i-1] = val
 
 	model = nn.Sequential( # Sequential,
         	nn.Sequential(Lambda(lambda x: x.view(1,-1) if 1==len(x.size()) else x ),nn.Linear(350,1024)), # Linear,
