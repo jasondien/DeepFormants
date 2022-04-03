@@ -5,14 +5,14 @@ from helpers.utilities import *
 from load_estimation_model import load_estimation_model
 
 
-def predict_from_times(wav_filename, preds_filename, begin, end):
+def predict_from_times(wav_filename, preds_filename, begin, end, csv_export=True):
     tmp_features_filename = "temp/" + next(tempfile._get_candidate_names()) + ".txt"
     print("Input Array Path: " +  tmp_features_filename)
 
     if begin > 0.0 or end > 0.0:
         print(wav_filename + " interval " + str(begin) + "-" + str(end) + ":")
         features.create_features(wav_filename, tmp_features_filename, begin, end)
-        load_estimation_model(tmp_features_filename, preds_filename, begin, end)
+        load_estimation_model(tmp_features_filename, preds_filename, begin, end, csv_export=csv_export)
         #easy_call("luajit load_estimation_model.lua " + tmp_features_filename + ' ' + preds_filename)
     else:
         features.create_features(wav_filename, tmp_features_filename)
