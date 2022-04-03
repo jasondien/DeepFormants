@@ -57,6 +57,8 @@ def csv_append_row(tmp_preds, preds_filename, with_headers=True):
 
 
 def generate_tmp_filename(extension):
+    if not os.path.isdir('temp'):
+        os.mkdir('temp')
     return "temp/" + next(tempfile._get_candidate_names()) + "." + extension
 
 

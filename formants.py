@@ -6,7 +6,8 @@ from load_estimation_model import load_estimation_model
 
 
 def predict_from_times(wav_filename, preds_filename, begin, end, csv_export=True):
-    tmp_features_filename = "temp/" + next(tempfile._get_candidate_names()) + ".txt"
+    tmp_features_filename = generate_tmp_filename("txt")
+    #tmp_features_filename = "temp/" + next(tempfile._get_candidate_names()) + ".txt"
     print("Input Array Path: " +  tmp_features_filename)
 
     predictions = None
