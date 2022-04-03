@@ -4,15 +4,12 @@ import argparse
 import numpy as np
 import wave
 import os
-from os import listdir
-from os.path import isfile, join
 import math
 from scipy.fftpack.realtransforms import dct
 from scipy.signal import lfilter, hamming
 from scipy.fftpack import fft, ifft
 #from scikits.talkbox.linpred import lpc  # obsolete
 from helpers.conch_lpc import lpc
-import shutil
 from helpers.utilities import *
 
 epsilon = 0.0000000001
@@ -274,6 +271,7 @@ def create_features(input_wav_filename, feature_filename, begin=None, end=None, 
         arr = [input_wav_filename]
         arr.extend(build_single_feature_row(X, Atal))
         np.savetxt(feature_filename, np.asarray([arr]), delimiter=",", fmt="%s")
+        os.remove(tmp_wav16_filename)
         return arr
     arcep_mat = []
     for i in range(len(X)):
@@ -281,6 +279,9 @@ def create_features(input_wav_filename, feature_filename, begin=None, end=None, 
         arr.extend(build_single_feature_row(X[i], Atal))
         arcep_mat.append(arr)
     np.savetxt(feature_filename, np.asarray(arcep_mat), delimiter=",", fmt="%s")
+    
+    os.remove(tmp_wav16_filename)
+
     return arcep_mat
 
 

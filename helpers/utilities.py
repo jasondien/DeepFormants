@@ -25,6 +25,8 @@ import wave
 import tempfile
 import os
 
+from isort import file
+
 
 def csv_append_row(tmp_preds, preds_filename, with_headers=True):
 
@@ -55,7 +57,7 @@ def csv_append_row(tmp_preds, preds_filename, with_headers=True):
 
 
 def generate_tmp_filename(extension):
-    return tempfile._get_default_tempdir() + "/" + next(tempfile._get_candidate_names()) + "." + extension
+    return "temp/" + next(tempfile._get_candidate_names()) + "." + extension
 
 
 def logging_defaults(logging_level="INFO"):
@@ -169,3 +171,8 @@ def is_valid_wav(filename):
         or wav_file.getcomptype() != 'NONE':
         return False
     return True
+
+def delete_temp_files():
+    print("Clearing temp files...")
+    for filename in os.listdir("temp"):
+        os.remove("temp/" + filename)

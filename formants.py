@@ -1,4 +1,3 @@
-from json import load
 import extract_features as features
 import argparse
 from helpers.textgrid import *
@@ -7,17 +6,19 @@ from load_estimation_model import load_estimation_model
 
 
 def predict_from_times(wav_filename, preds_filename, begin, end):
-    tmp_features_filename = tempfile._get_default_tempdir() + "/" + next(tempfile._get_candidate_names()) + ".txt"
+    tmp_features_filename = "temp/" + next(tempfile._get_candidate_names()) + ".txt"
     print("Input Array Path: " +  tmp_features_filename)
 
     if begin > 0.0 or end > 0.0:
         print(wav_filename + " interval " + str(begin) + "-" + str(end) + ":")
         features.create_features(wav_filename, tmp_features_filename, begin, end)
-        load_estimation_model(tmp_features_filename, preds_filename)
+        load_estimation_model(tmp_features_filename, preds_filename, begin, end)
         #easy_call("luajit load_estimation_model.lua " + tmp_features_filename + ' ' + preds_filename)
     else:
         features.create_features(wav_filename, tmp_features_filename)
         easy_call("luajit load_tracking_model.lua " + tmp_features_filename + ' ' + preds_filename)
+    
+    delete_temp_files()
 
 
 def predict_from_textgrid(wav_filename, preds_filename, textgrid_filename, textgrid_tier):
@@ -34,26 +35,27 @@ def predict_from_textgrid(wav_filename, preds_filename, textgrid_filename, textg
     # extract tier names
     tier_names = textgrid.tierNames()
 
-    if textgrid_tier in tier_names:
+    
+    if textgrid_tier in tier_names: # run over all intervals in the tier
         tier_index = tier_names.index(textgrid_tier)
-        # run over all intervals in the tier
-        for interval in textgrid[tier_index]:
-            if re.search(r'\S', interval.mark()):
-                tmp_features_filename = generate_tmp_filename("features")
-                tmp_preds = generate_tmp_filename("preds")
-                features.create_features(wav_filename, tmp_features_filename, interval.xmin(), interval.xmax())
-                load_estimation_model(tmp_features_filename, tmp_preds)
-                #easy_call("th load_estimation_model.lua " + tmp_features_filename + ' ' + tmp_preds)
-                csv_append_row(tmp_preds, preds_filename)
-    else:  # process first tier
-        for interval in textgrid[0]:
-            if re.search(r'\S', interval.mark()):
-                tmp_features_filename = generate_tmp_filename("features")
-                tmp_preds = generate_tmp_filename("preds")
-                features.create_features(wav_filename, tmp_features_filename, interval.xmin(), interval.xmax())
-                load_estimation_model(tmp_features_filename, tmp_preds)
-                #easy_call("th load_estimation_model.lua " + tmp_features_filename + ' ' + tmp_preds)
-                csv_append_row(tmp_preds, preds_filename)
+        textgrid_tier = textgrid[tier_index]
+    else: # process first tier
+        textgrid_tier = textgrid[0]
+    
+    for interval in textgrid_tier:
+        if re.search(r'\S', interval.mark()):
+            tmp_features_filename = generate_tmp_filename("features")
+            tmp_preds = generate_tmp_filename("preds")
+            begin = interval.xmin()
+            end = interval.xmax()
+            features.create_features(wav_filename, tmp_features_filename, begin, end)
+            load_estimation_model(tmp_features_filename, tmp_preds, begin, end)
+            #easy_call("th load_estimation_model.lua " + tmp_features_filename + ' ' + tmp_preds)
+            csv_append_row(tmp_preds, preds_filename)
+            delete_temp_files()
+
+    delete_temp_files()
+
 
 if __name__ == "__main__":
     # parse arguments

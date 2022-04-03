@@ -26,7 +26,7 @@ class LambdaReduce(LambdaBase):
         return reduce(self.lambda_func,self.forward_prepare(input))
 
 
-def load_estimation_model(inputfilename, outputfilename):
+def load_estimation_model(inputfilename, outputfilename, begin, end):
 	with open(inputfilename, "r") as rf:
 		contents = rf.read()
 		contents = contents.split(",")
@@ -54,5 +54,7 @@ def load_estimation_model(inputfilename, outputfilename):
 	my_prediction = model.forward(data)
 
 	with open(outputfilename, "w") as wf:
-		wf.write("NAME,F1,F2,F3,F4\n")
-		wf.write(name + "," + str(1000 * float(my_prediction[0][0])) + "," + str(1000 * float(my_prediction[0][1])) + "," + str(1000 * float(my_prediction[0][2])) + "," + str(1000 * float(my_prediction[0][3])))
+		wf.write("NAME,begin,end,F1,F2,F3,F4\n")
+		wf.write(name + "," + str(begin) + "," + str(end) + "," +  \
+			str(1000 * float(my_prediction[0][0])) + "," + str(1000 * float(my_prediction[0][1])) + "," + \
+				str(1000 * float(my_prediction[0][2])) + "," + str(1000 * float(my_prediction[0][3])) + "\n")
